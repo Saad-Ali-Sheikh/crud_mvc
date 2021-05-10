@@ -1,0 +1,250 @@
+﻿@{
+    Page.Title = "Title goes here";
+    //Layout = "Your Layout Page goes here";
+}
+
+<section>
+    <div class="container">
+        <h2 class="mb-5">Personal Details</h2>
+        <div class="row">
+
+            <div class="col-lg-5">
+
+                <div class="md-form">
+                    <input oninput="OnNameChange(this.value)" id="Name" type="text" class="form-control  mt-3">
+                    <label id="lname" for="Name">Full Name</label>
+                    <small id="InvalidName" class="text-danger d-none">Invalid Name</small>
+                </div>
+                <div class="md-form">
+                    <input id="Username" type="text" class="form-control  mt-3">
+                    <label for="Username">Username</label>
+
+                </div>
+                <div class="md-form">
+                    <input oninput="OnEmailChange(this.value)" id="Email" type="email" class="form-control mt-3">
+                    <label for="Email">Email</label>
+                    <small id="InvalidEmail" class="text-danger d-none">Invalid Email Address</small>
+                </div>
+                <small id="Moderator_added" class="text-success d-none">Moderator added successfully</small><br />
+                <small id="Moderator_updated" class="text-success d-none">Changes Saved</small><br />
+                <small id="Moderator_deleted" class="text-danger d-none">Moderator deleted successfully</small><br />
+                <a id="Edit" onclick="Edit()" class="btn btn-primary d-none">Update</a>
+                <a id="Delete" onclick="Delete()" class="btn btn-danger d-none">Delete</a>
+                <a id="Add" onclick="Add()" class="btn btn-primary d-none">Add Moderator</a>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="md-form">
+                    <input oninput="OnContactChange(this.value)" id="Contact" type="number" class="form-control  mt-3">
+                    <label for="Contact">Contact</label>
+                    <small id="InvalidContact" class="text-danger d-none">Invalid Phone-No</small>
+                </div>
+                <div class="md-form">
+                    <input oninput="OnPasswordChange(this.value)" id="Password" type="password" class="form-control  mt-3">
+                    <label for="Password">Password</label>
+                    <small id="InvalidPassword" class="text-danger d-none">Invalid Password</small>
+                </div>
+                <div class="md-form">
+                    <input oninput="OnCPasswordChange(this.value)" id="CPassword" type="password" class="form-control  mt-3">
+                    <label for="CPassword">Confirm Password</label>
+                    <small id="InvalidCPassword" class="text-danger d-none">Password Not Match</small>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+
+</section>
+
+
+@section Validate_Moderator
+{
+    <script>
+        let Name = "", Email = "", Password = "", Contact = 0, CPassword = "";
+        function OnNameChange(e) {
+            Name = e;
+            
+        }
+        function OnEmailChange(e) {
+            Email = e;
+        }
+        function OnPasswordChange(e) {
+            Password = e;
+        }
+        function OnCPasswordChange(e) {
+            CPassword = e;
+        }
+        function OnContactChange(e) {
+            Contact = e;
+        }
+        function Validate_Update(operation)
+        {
+            if (Email != "" && Password != "" && Name != "" && Contact.length == 11 && CPassword == Password) {
+
+                $("#InvalidEmail").addClass("d-none")
+                $("#InvalidPassword").addClass("d-none")
+                $("#InvalidName").addClass("d-none")
+                $("#InvalidContact").addClass("d-none")
+                if (operation == 'Add') {
+
+                    $.ajax({
+                        url: 'https://localhost:44340/api/moderators',
+                        type: 'POST',
+                        //contentType: 'application/json',
+                        data: {
+                            fullname: Name,
+                            email: Email,
+                            contact: Contact,
+                            password: Password
+                        },
+                        success: function (response) {
+                            //$("#WrongEP").addClass("d-none")
+                            $('#Moderator_added').removeClass('d-none')
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2000)
+
+                        },
+                        error: function (reject) {
+                            // $("#WrongEP").removeClass("d-none") 
+                            console.log(reject)
+                        }
+                    })
+                }
+                else if (operation == 'Edit') {
+                    alert(Contact)
+                    $.ajax({
+                        url: 'https://localhost:44340/api/moderators/' + root.substr(8, root.length),
+                        type: 'PUT',
+                        //contentType: 'application/json',
+                        data: {
+                            fullname: Name,
+                            email: Email,
+                            password: Password,
+                            contact: Contact
+                        },
+                        success: function (response) {
+                            //$("#WrongEP").addClass("d-none")
+                            $('#Moderator_updated').removeClass('d-none')
+
+                        },
+                        error: function (reject) {
+                            // $("#WrongEP").removeClass("d-none") 
+                            console.log(reject)
+                        }
+                    })
+
+                }
+                else if(operation == 'deleted') {
+                    $.ajax({
+                        url: 'https://localhost:44340/api/moderators/' + root.substr(10, root.length),
+                        type: 'DELETE',
+                        //contentType: 'application/json',
+                        
+                        success: function (response) {
+                            //$("#WrongEP").addClass("d-none")
+                            console.log(response)
+                            $('#Moderator_deleted').removeClass('d-none')
+                            setTimeout(() => {
+                                window.location.href ='https://localhost:44375/Home/Moderator';
+                            }, 2000)
+                        },
+                        error: function (reject) {
+                            // $("#WrongEP").removeClass("d-none") 
+                            console.log(reject)
+                        }
+                    })
+
+                }
+                // $("#InvalidEmail").removeClass("d-none")
+            }
+            if (Email == "") {
+                $("#InvalidEmail").removeClass("d-none")
+            }
+            else { $("#InvalidEmail").addClass("d-none") }
+            if (Password == "") {
+                $("#InvalidPassword").removeClass("d-none")
+            }
+            else { $("#InvalidPassword").addClass("d-none") }
+            if (Contact.length != 11) {
+                $("#InvalidContact").removeClass("d-none")
+            }
+            else { $("#InvalidContact").addClass("d-none") }
+            if (Name == "") {
+                $("#InvalidName").removeClass("d-none")
+            }
+            else { $("#InvalidName").addClass("d-none") }
+            if (CPassword != Password) { $("#InvalidCPassword").removeClass("d-none") }
+            else { $("#InvalidCPassword").addClass("d-none") }
+
+        }
+        function Add() {
+            Validate_Update("Add");
+        }
+        function Edit() {
+            Name = $('#Name')[0].value
+            Email = $('#Email')[0].value
+            Contact = $('#Contact')[0].value
+            alert(Contact)
+            Password = $('#Password')[0].value
+            CPassword = $('#CPassword')[0].value
+            Validate_Update("Edit");
+           
+        }
+        function Delete() {
+            Name = $('#Name')[0].value
+            Email = $('#Email')[0].value
+            Contact = $('#Contact')[0].value
+            Password = $('#Password')[0].value
+            CPassword = $('#CPassword')[0].value
+            Validate_Update("deleted");
+        }
+        function Load_Single_Moderator(url) {
+            $.ajax({
+
+                url: url,
+                type: 'GET',
+                //contentType: 'application/json',
+                success: function (response) {
+                    $('#Name')[0].value = response.fullname
+                    $('#Email')[0].value = response.email
+                    $('#Contact')[0].value = response.contact
+
+                    $('#Password')[0].value = response.password
+                    $('#CPassword')[0].value = response.password
+                    for (let i = 0; i < 6; i++) {
+                        document.querySelectorAll('label')[i].classList.add('active')
+                    }
+                    
+                },
+                error: function (reject) {
+                    // $("#WrongEP").removeClass("d-none")
+                    console.log(reject)
+                }
+            })
+        }
+
+
+        let root = window.location.hash.substring(1);
+        if (root == 'Add') {
+            $('#Add').removeClass('d-none')
+
+        }
+
+
+        else if (root.includes('edit')) {
+            $('#Edit').removeClass('d-none')
+            Load_Single_Moderator('https://localhost:44340/api/moderators/' + root.substr(8, root.length))
+        }
+
+
+        else {
+            $('#Delete').removeClass('d-none')
+            Load_Single_Moderator('https://localhost:44340/api/moderators/' + root.substr(10, root.length))
+        }
+
+    </script>
+
+}

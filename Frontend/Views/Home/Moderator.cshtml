@@ -1,0 +1,62 @@
+﻿@{
+    Page.Title = "Moderator";
+    //Layout = "Your Layout Page goes here";
+}
+
+<section>
+    <a onclick="Nav_To_Moderator_Section('Add')" style="font-size:1.3rem;"><i class="fas fa-plus-circle text-primary mr-3"></i></a>
+    <table class="table">
+        <thead class="bg-primary white-text">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Full Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody id="Load_Moderators">
+            
+            
+        </tbody>
+    </table>
+
+</section>
+
+
+<script>
+    window.onload = () => {
+        if (window.location.href == 'https://localhost:44375/Home/Moderator') {
+            let tbody = document.getElementById("Load_Moderators")
+            $.ajax({
+                url: 'https://localhost:44340/api/moderators',
+                type: 'GET',
+                //contentType: 'application/json',
+                success: function (response) {
+                    for (let i = 0; i < response.length; i++) {
+                        let tr = `<tr id=${response[i].id}>
+                        <td>${i + 1}</td>
+                        <td>${response[i].fullname}</td>
+                        <td>${response[i].email}</td>
+                        <td>${response[i].contact}</td>
+                        <td><a onclick="Nav_To_Moderator_Section('edit /' + ${response[i].id})" class="btn btn-primary mr-3">Edit</a><a onclick="Nav_To_Moderator_Section('Delete /' + ${response[i].id} )" class="btn btn-danger">Delete</a></td>
+                        </tr>`
+                        tbody.innerHTML += tr;
+                    }
+                },
+                error: function (reject) {
+                    // $("#WrongEP").removeClass("d-none")
+                    console.log(reject)
+                }
+            })
+
+
+        }
+
+    }
+    function Nav_To_Moderator_Section(param) {
+        window.location.href = 'AddEditDeleteModerator' + '#' + param;
+    }
+</script>
+
+
